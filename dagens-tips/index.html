@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagens tips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  /* Layout: widget som fyller boksen den ligger i (iframe i Classroomscreen). Overskrift og dato øverst, tipset midt i (kategori, taster eller kode, forklaring), kontrollinje nederst som skjules. Alt skalerer med boksens korteste side. */
+  --sky:#E4EEF8;
+  --ink:#0F2340;
+  --blue:#2A5BD7;
+  --paper:#FFFFFF;
+  --term:#0F2340;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+
+  --line:color-mix(in srgb, var(--ink) 16%, var(--paper));
+  --wash:color-mix(in srgb, var(--ink) 6%, var(--paper));
+  --soft-ink:color-mix(in srgb, var(--ink) 70%, var(--paper));
+  --cat:var(--blue);
+
+  --edge:clamp(10px, 4vmin, 40px);
+  --btn-h:clamp(30px, 9vmin, 50px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{height:100%;margin:0}
+body{background:var(--sky);color:var(--ink);font-family:var(--font-body);overflow:hidden}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.app{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr}
+
+header{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:var(--edge) var(--edge) 0;
+}
+h1{
+  margin:0;min-width:0;
+  font-family:var(--font-display);font-weight:800;
+  font-size:clamp(16px,5.4vmin,46px);letter-spacing:-.01em;line-height:1.05;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.when{
+  flex:none;
+  font-size:clamp(12px,3.3vmin,24px);font-weight:700;color:var(--soft-ink);
+}
+.back{
+  flex:none;border:0;background:transparent;cursor:pointer;
+  font:inherit;font-size:clamp(12px,3.3vmin,22px);font-weight:700;color:var(--blue);
+  text-decoration:underline;text-underline-offset:3px;padding:2px 4px;border-radius:6px;
+}
+
+main{
+  min-height:0;overflow:auto;
+  display:grid;place-items:center;
+  padding:clamp(6px,2vmin,20px) var(--edge) calc(var(--edge) + var(--btn-h) * .4);
+}
+.card{
+  width:min(100%, 1100px);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:clamp(8px,3vmin,30px);
+}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card.enter{animation:enter .45s ease-out}
+
+.chip{
+  display:inline-flex;align-items:center;gap:.5em;
+  padding:.35em .9em;border-radius:999px;
+  background:color-mix(in srgb, var(--cat) 12%, var(--paper));
+  color:color-mix(in srgb, var(--cat) 80%, #000);
+  font-weight:700;font-size:clamp(12px,3.2vmin,24px);
+}
+.chip::before{content:"";width:.6em;height:.6em;border-radius:50%;background:var(--cat)}
+
+.rows{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,2vmin,18px);max-width:100%}
+.keyrow{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.3em;
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(18px,8vmin,68px);
+}
+.keyrow.small{font-size:clamp(14px,4.6vmin,38px)}
+.keyrow.small .lbl{font-size:.6em}
+.lbl{
+  font-family:var(--font-body);font-weight:700;
+  font-size:.42em;color:var(--soft-ink);
+  margin-right:.4em;letter-spacing:.02em;text-transform:uppercase;
+}
+.key{
+  display:inline-block;min-width:1.5em;
+  padding:.12em .45em .16em;
+  background:var(--paper);color:var(--ink);
+  border:2px solid var(--line);border-bottom-width:.14em;border-radius:.22em;
+  line-height:1.15;text-align:center;
+  box-shadow:0 2px 6px rgba(15,35,64,.08);
+}
+.key.mouse{border-style:dashed;border-bottom-width:2px;background:color-mix(in srgb, var(--paper) 70%, transparent)}
+.plus,.or{color:var(--soft-ink);font-weight:600;font-size:.7em}
+.then{font-family:var(--font-body);color:var(--soft-ink);font-weight:700;font-size:.42em;margin:0 .3em}
+
+.coderow{display:flex;flex-direction:column;align-items:center;gap:.4em;max-width:100%}
+.code{
+  margin:0;max-width:100%;
+  padding:.55em .9em;border-radius:.4em;
+  background:var(--term);color:#F4F7FB;
+  font-family:var(--font-mono);font-weight:500;
+  font-size:clamp(15px,6vmin,52px);line-height:1.35;text-align:left;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  box-shadow:0 6px 18px rgba(15,35,64,.18);
+}
+.code.long{font-size:clamp(13px,4.4vmin,38px)}
+.code.xlong{font-size:clamp(12px,3.4vmin,30px)}
+.code .prompt{color:#7FA7FF;user-select:none}
+.code.small{font-size:clamp(12px,3.6vmin,30px);opacity:.9}
+.coderow .lbl{font-size:clamp(11px,2.6vmin,18px);margin:0}
+
+.desc{
+  margin:0;max-width:30ch;
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(16px,5.6vmin,48px);line-height:1.15;letter-spacing:-.01em;
+  text-wrap:balance;
+}
+.tip{
+  margin:0;max-width:52ch;
+  font-size:clamp(12px,3.4vmin,26px);line-height:1.45;color:var(--soft-ink);
+  text-wrap:balance;
+}
+.empty{font-size:clamp(14px,4vmin,28px);font-weight:700;color:var(--soft-ink);max-width:28ch}
+
+/* Kontrollinje */
+.bar{
+  position:absolute;left:50%;bottom:clamp(8px,2.4vmin,22px);
+  transform:translateX(-50%);
+  display:flex;gap:clamp(2px,.8vmin,6px);
+  padding:clamp(4px,1.1vmin,8px);
+  background:var(--paper);color:var(--ink);
+  border-radius:clamp(10px,3vmin,18px);
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.16);
+  transition:opacity .35s ease,transform .35s ease;
+  z-index:5;
+}
+.app.hide-ui .bar{opacity:0;transform:translate(-50%,10px);pointer-events:none}
+.bar button{
+  display:flex;align-items:center;justify-content:center;gap:clamp(4px,1.2vmin,8px);
+  height:var(--btn-h);min-width:var(--btn-h);padding:0 clamp(8px,2.4vmin,14px);
+  border:0;border-radius:clamp(7px,2vmin,12px);background:transparent;color:var(--ink);
+  font:inherit;font-weight:700;font-size:clamp(12px,3.3vmin,16px);white-space:nowrap;cursor:pointer;
+}
+.bar button.icon{padding:0}
+.bar button:hover{background:var(--wash)}
+.bar svg{width:clamp(14px,4vmin,20px);height:clamp(14px,4vmin,20px);flex:none}
+
+/* Innstillinger */
+.sheet{
+  position:absolute;inset:0;z-index:8;overflow:auto;
+  padding:clamp(12px,4vmin,32px);
+  background:var(--paper);color:var(--ink);
+}
+.sheet-inner{max-width:460px;margin:0 auto;display:grid;gap:18px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sheet h2{font-family:var(--font-display);font-weight:700;font-size:22px;margin:0}
+.close{
+  width:40px;height:40px;flex:none;display:grid;place-items:center;
+  border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);cursor:pointer;
+}
+.close svg{width:18px;height:18px}
+.group{display:grid;gap:10px}
+.field-label{font-size:14px;font-weight:700;color:var(--soft-ink)}
+.text-input,.select{
+  width:100%;height:48px;padding:0 14px;
+  border:1.5px solid var(--line);border-radius:12px;background:var(--paper);
+  font:inherit;font-size:17px;color:var(--ink);
+}
+.text-input:focus,.select:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb, var(--blue) 22%, transparent)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--wash);border-radius:12px}
+.seg button{
+  border:0;background:transparent;padding:9px 6px;border-radius:9px;
+  font:inherit;font-weight:700;font-size:15px;color:var(--soft-ink);cursor:pointer;
+}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(15,35,64,.16)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px 12px}
+.check{display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer;padding:5px 0}
+.check input{width:20px;height:20px;margin:0;accent-color:var(--blue);flex:none}
+.check .n{font-weight:400;color:var(--soft-ink);font-size:14px}
+.links{display:flex;gap:6px}
+.ghost{
+  border:0;background:transparent;color:var(--blue);
+  font:inherit;font-weight:700;font-size:14px;cursor:pointer;padding:4px 6px;border-radius:8px;
+  text-decoration:underline;text-underline-offset:3px;
+}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.primary{
+  height:54px;border:0;border-radius:14px;background:var(--blue);color:#fff;
+  font-family:var(--font-display);font-weight:700;font-size:19px;cursor:pointer;
+}
+.primary:hover{filter:brightness(1.08)}
+.err{margin:0;color:#C4213B;font-size:14px;font-weight:700}
+.keys-help{margin:0;font-size:13px;color:var(--soft-ink);line-height:1.9}
+kbd{
+  font-family:inherit;font-size:12px;font-weight:700;color:var(--ink);
+  border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--wash);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .card.enter{animation:none}
+  .bar{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <h1 id="titleText">Dagens tips</h1>
+    <span class="when" id="when"></span>
+    <button type="button" class="back" id="backBtn" hidden>Tilbake til dagens</button>
+  </header>
+
+  <main>
+    <div class="card" id="card" aria-live="polite"></div>
+  </main>
+
+  <nav class="bar" id="bar" aria-label="Bla i tipsene">
+    <button type="button" class="icon" id="prevBtn" aria-label="Forrige tips" title="Forrige (←)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button type="button" id="randBtn" title="Tilfeldig (R)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h4v4M4 20l16-16M20 16v4h-4M15 15l5 5M4 4l5 5"/></svg>
+      <span>Tilfeldig</span>
+    </button>
+    <button type="button" class="icon" id="nextBtn" aria-label="Neste tips" title="Neste (→)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <button type="button" class="icon" id="openSheet" aria-label="Innstillinger" title="Innstillinger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.6"/><circle cx="10" cy="17" r="2.6"/></svg>
+    </button>
+  </nav>
+
+  <form class="sheet" id="sheet" hidden novalidate aria-labelledby="sheetTitle">
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <h2 id="sheetTitle">Innstillinger</h2>
+        <button type="button" class="close" id="closeSheet" aria-label="Lukk innstillingene">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="group">
+        <label class="field-label" for="titleInput">Overskrift</label>
+        <input class="text-input" id="titleInput" type="text" maxlength="40" autocomplete="off">
+      </div>
+
+      <div class="group">
+        <span class="field-label" id="osLabel">Vis snarveier for</span>
+        <div class="seg" role="group" aria-labelledby="osLabel">
+          <button type="button" data-os="begge" aria-pressed="true">Begge</button>
+          <button type="button" data-os="win" aria-pressed="false">Windows</button>
+          <button type="button" data-os="mac" aria-pressed="false">Mac</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="field-label" for="byttSelect">Nytt tips</label>
+        <select class="select" id="byttSelect">
+          <option value="0">Ett nytt hver dag</option>
+          <option value="5">Hvert 5. minutt</option>
+          <option value="10">Hvert 10. minutt</option>
+          <option value="15">Hvert 15. minutt</option>
+          <option value="30">Hvert 30. minutt</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <div class="row">
+          <span class="field-label" id="catLabel">Kategorier</span>
+          <div class="links"><button type="button" class="ghost" id="allCats">Velg alle</button><button type="button" class="ghost" id="noCats">Fjern alle</button></div>
+        </div>
+        <div class="cats" id="cats" role="group" aria-labelledby="catLabel"></div>
+        <p class="err" id="catErr" hidden>Velg minst én kategori.</p>
+      </div>
+
+      <button type="submit" class="primary">Ferdig</button>
+      <p class="keys-help"><kbd>←</kbd> <kbd>→</kbd> forrige/neste &nbsp;·&nbsp; <kbd>R</kbd> tilfeldig &nbsp;·&nbsp; <kbd>Esc</kbd> lukk</p>
+    </div>
+  </form>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =========================================================
+     TIPSENE
+     k = taster på Windows, m = taster på Mac (mangler m: bare Windows)
+         + mellom taster som trykkes samtidig, mellomrom mellom trinn,
+         / mellom alternativer, _ blir mellomrom inni én tast.
+     x = kommando eller kode, xm = egen Mac-variant, os:'win' = bare Windows,
+     np = ikke vis $ foran, d = hva den gjør, t = ekstra tips
+     ========================================================= */
+  var CATS = [
+    ['vscode',   'VS Code',              '#2A5BD7'],
+    ['tastatur', 'Tastatur og nettleser','#0E8A7E'],
+    ['terminal', 'Terminal',             '#3B3F4C'],
+    ['git',      'Git',                  '#D9480F'],
+    ['html',     'HTML',                 '#C2255C'],
+    ['css',      'CSS',                  '#6741D9'],
+    ['js',       'JavaScript',           '#8F6B00'],
+    ['react',    'React',                '#0B7285'],
+    ['nett',     'Nettverk',             '#2B8A3E'],
+    ['ps',       'Photoshop',            '#1864AB'],
+    ['pr',       'Premiere Pro',         '#862E9C']
+  ];
+  var PROMPT = { terminal:1, git:1, nett:1 };
+
+  var TIPS = [
+    // VS Code
+    {c:'vscode', k:'Ctrl+Shift+P', m:'Cmd+Shift+P', d:'Åpne kommandopaletten', t:'Herfra når du alle kommandoene i VS Code. Begynn å skrive det du leter etter.'},
+    {c:'vscode', k:'Ctrl+P', m:'Cmd+P', d:'Hopp rett til en fil i prosjektet', t:'Skriv bare en del av filnavnet, for eksempel «styl» for style.css.'},
+    {c:'vscode', k:'Ctrl+/', m:'Cmd+/', d:'Kommenter ut eller inn kode', t:'Virker ikke tasten på norsk tastatur? Søk etter «Toggle Line Comment» i kommandopaletten, så ser du snarveien for ditt tastatur.'},
+    {c:'vscode', k:'Alt+Up/Down', m:'Option+Up/Down', d:'Flytt linjen opp eller ned', t:'Marker flere linjer først for å flytte en hel blokk.'},
+    {c:'vscode', k:'Shift+Alt+Up/Down', m:'Shift+Option+Up/Down', d:'Kopier linjen opp eller ned', t:'Raskere enn kopier og lim inn når du trenger en lignende linje.'},
+    {c:'vscode', k:'Ctrl+D', m:'Cmd+D', d:'Marker neste like ord', t:'Trykk flere ganger og skriv, så endrer du alle samtidig.'},
+    {c:'vscode', k:'Alt+Klikk', m:'Option+Klikk', d:'Sett inn flere markører', t:'Klikk flere steder og skriv samme tekst overalt på én gang.'},
+    {c:'vscode', k:'Ctrl+Shift+K', m:'Cmd+Shift+K', d:'Slett hele linjen'},
+    {c:'vscode', k:'Shift+Alt+F', m:'Shift+Option+F', d:'Formater koden', t:'Rydder innrykk og mellomrom så koden blir lettere å lese.'},
+    {c:'vscode', k:'Ctrl+B', m:'Cmd+B', d:'Vis eller skjul sidepanelet', t:'Gir mer plass til koden på en liten skjerm.'},
+    {c:'vscode', k:'F2', m:'F2', d:'Gi nytt navn til en variabel overalt', t:'Stå på navnet og trykk F2. På Mac-laptop: fn + F2.'},
+    {c:'vscode', k:'F12', m:'F12', d:'Gå til der en funksjon er laget', t:'Stå på funksjonsnavnet og trykk F12.'},
+    {c:'vscode', k:'Ctrl+Shift+F', m:'Cmd+Shift+F', d:'Søk i alle filene i prosjektet'},
+    {c:'vscode', k:'Ctrl+H', m:'Cmd+Option+F', d:'Søk og erstatt i filen'},
+    {c:'vscode', k:'Ctrl+Space', m:'Ctrl+Space', d:'Vis forslag mens du skriver', t:'Nyttig når forslagslisten har forsvunnet.'},
+    {c:'vscode', k:'Ctrl+G', m:'Ctrl+G', d:'Gå til et linjenummer', t:'Perfekt når feilmeldingen sier «line 42».'},
+    {c:'vscode', k:'Ctrl+Enter', m:'Cmd+Enter', d:'Lag en ny linje under, uansett hvor markøren står'},
+    {c:'vscode', k:'Alt+Z', m:'Option+Z', d:'Slå tekstbryting av og på', t:'Lange linjer brytes slik at du slipper å scrolle sidelengs.'},
+    {c:'vscode', k:'Ctrl+Shift+T', m:'Cmd+Shift+T', d:'Åpne igjen filen du nettopp lukket'},
+    {c:'vscode', k:'Ctrl+K Z', m:'Cmd+K Z', d:'Zen-modus: bare koden på skjermen', t:'Trykk Esc to ganger for å gå ut igjen.'},
+    {c:'vscode', k:'! Tab', m:'! Tab', d:'Lag et ferdig HTML-skjelett', t:'Skriv ! i en tom .html-fil og trykk Tab. Dette er Emmet.'},
+    {c:'vscode', k:'Ctrl+W', m:'Cmd+W', d:'Lukk filen du står i'},
+
+    // Tastatur og nettleser
+    {c:'tastatur', k:'Win+Shift+S', m:'Cmd+Shift+4', d:'Ta skjermbilde av et utsnitt', t:'På Windows havner bildet i utklippstavlen, så du kan lime det rett inn.'},
+    {c:'tastatur', k:'Alt+Tab', m:'Cmd+Tab', d:'Bytt mellom åpne programmer', t:'Hold inne Alt (Cmd på Mac) og trykk Tab flere ganger for å bla.'},
+    {c:'tastatur', k:'Win+L', m:'Ctrl+Cmd+Q', d:'Lås maskinen', t:'Gjør det hver gang du går fra den.'},
+    {c:'tastatur', k:'Win+V', d:'Vis utklippstavle-historikken', t:'Slå den på første gang. Da kan du lime inn ting du kopierte tidligere.'},
+    {c:'tastatur', k:'Win+.', m:'Ctrl+Cmd+Space', d:'Åpne emoji- og symbolpanelet', t:'Her finner du også tegn som → og ©.'},
+    {c:'tastatur', k:'Win+Left/Right', d:'Fest vinduet til venstre eller høyre halvdel', t:'Kode på den ene siden, nettleseren på den andre.'},
+    {c:'tastatur', k:'Win+E', d:'Åpne Filutforsker'},
+    {c:'tastatur', k:'Ctrl+Shift+Esc', m:'Cmd+Option+Esc', d:'Avslutt et program som har hengt seg', t:'Åpner Oppgavebehandling på Windows og «Tving avslutning» på Mac.'},
+    {c:'tastatur', k:'Ctrl+Z', m:'Cmd+Z', d:'Angre', t:'Ctrl+Y (Cmd+Shift+Z på Mac) gjør om igjen.'},
+    {c:'tastatur', k:'Ctrl+Backspace', m:'Option+Backspace', d:'Slett et helt ord om gangen'},
+    {c:'tastatur', k:'Ctrl+Left/Right', m:'Option+Left/Right', d:'Hopp ett ord om gangen', t:'Hold Shift i tillegg for å markere ord for ord.'},
+    {c:'tastatur', k:'Home/End', m:'Cmd+Left/Right', d:'Hopp til starten eller slutten av linjen'},
+    {c:'tastatur', k:'Ctrl+F', m:'Cmd+F', d:'Søk etter tekst på siden'},
+    {c:'tastatur', k:'F12', m:'Cmd+Option+I', d:'Åpne utviklerverktøyene i nettleseren', t:'Se HTML-en, test CSS direkte og les feilmeldinger i Console.'},
+    {c:'tastatur', k:'Ctrl+Shift+R', m:'Cmd+Shift+R', d:'Last inn siden på nytt uten mellomlager', t:'Ser du ikke endringene dine? Prøv denne.'},
+    {c:'tastatur', k:'Ctrl+U', m:'Cmd+Option+U', d:'Vis kildekoden til en nettside'},
+    {c:'tastatur', k:'Ctrl+Shift+T', m:'Cmd+Shift+T', d:'Åpne igjen fanen du nettopp lukket'},
+    {c:'tastatur', k:'Ctrl+L', m:'Cmd+L', d:'Hopp til adressefeltet i nettleseren'},
+
+    // Terminal
+    {c:'terminal', x:'cd mappenavn', d:'Gå inn i en mappe', t:'cd .. går én mappe opp.'},
+    {c:'terminal', x:'ls', d:'Vis filene i mappen du står i', t:'Virker i PowerShell, på Mac og på Linux. I gamle cmd heter det dir.'},
+    {c:'terminal', x:'pwd', d:'Vis hvilken mappe du står i'},
+    {c:'terminal', x:'mkdir prosjekt', d:'Lag en ny mappe'},
+    {c:'terminal', x:'ni index.html', xm:'touch index.html', d:'Lag en ny, tom fil', t:'ni er kort for New-Item i PowerShell.'},
+    {c:'terminal', x:'clear', d:'Tøm terminalvinduet', t:'I gamle cmd heter det cls.'},
+    {c:'terminal', k:'Tab', m:'Tab', d:'Fullfør fil- og mappenavn automatisk', t:'Skriv de første bokstavene og trykk Tab. Sparer mange skrivefeil.'},
+    {c:'terminal', k:'Up', m:'Up', d:'Hent fram forrige kommando', t:'Trykk flere ganger for å bla bakover.'},
+    {c:'terminal', k:'Ctrl+C', m:'Ctrl+C', d:'Stopp et program som kjører', t:'For eksempel en utviklingsserver. Også på Mac er det Ctrl, ikke Cmd.'},
+    {c:'terminal', x:'code .', d:'Åpne mappen du står i, i VS Code', t:'Punktumet betyr «denne mappen».'},
+    {c:'terminal', x:'npm install', d:'Installer pakkene prosjektet trenger', t:'Leser package.json og lager mappen node_modules.'},
+    {c:'terminal', x:'npm run dev', d:'Start utviklingsserveren', t:'Brukes blant annet i Vite- og React-prosjekter. Stopp med Ctrl+C.'},
+    {c:'terminal', x:'npm create vite@latest', d:'Lag et nytt Vite-prosjekt', t:'Velg React eller Vanilla og følg spørsmålene.'},
+    {c:'terminal', x:'node app.js', d:'Kjør en JavaScript-fil utenfor nettleseren'},
+    {c:'terminal', x:'ssh bruker@server', d:'Logg inn på en annen maskin over nettverket', t:'Skriv exit for å logge ut igjen.'},
+
+    // Git
+    {c:'git', x:'git init', d:'Gjør mappen om til et Git-repo'},
+    {c:'git', x:'git status', d:'Se hvilke filer som er endret', t:'Bruk den ofte. Den forteller også hva du bør gjøre videre.'},
+    {c:'git', x:'git add .', d:'Gjør alle endringene klare til commit'},
+    {c:'git', x:'git commit -m "Legg til meny"', d:'Lagre et øyeblikksbilde med en beskrivelse', t:'Skriv meldingen som en kort ordre: hva gjør endringen?'},
+    {c:'git', x:'git push', d:'Send commitene dine til GitHub'},
+    {c:'git', x:'git pull', d:'Hent de nyeste endringene fra GitHub', t:'Gjør det før du begynner å jobbe, særlig i gruppeprosjekter.'},
+    {c:'git', x:'git clone <adresse>', d:'Last ned et repo fra GitHub'},
+    {c:'git', x:'git log --oneline', d:'Se historikken, én linje per commit'},
+    {c:'git', x:'git diff', d:'Se nøyaktig hva du har endret', t:'Viser endringer du ikke har lagt til med git add ennå.'},
+    {c:'git', x:'git switch -c ny-funksjon', d:'Lag en ny gren og bytt til den', t:'Prøv ut ting uten å ødelegge main.'},
+    {c:'git', x:'git restore index.html', d:'Angre endringene i en fil', t:'Gjelder endringer du ikke har lagt til med git add. De kan ikke hentes tilbake.'},
+    {c:'git', x:'.gitignore', np:1, d:'Fila som forteller Git hva som skal ignoreres', t:'Skriv node_modules/ i den, så slipper du å laste opp tusenvis av filer.'},
+
+    // Nettverk
+    {c:'nett', x:'ipconfig', xm:'ifconfig', d:'Vis IP-adressen til maskinen din'},
+    {c:'nett', x:'ipconfig /all', os:'win', d:'Vis MAC-adresse, DNS-server, gateway og mer'},
+    {c:'nett', x:'ping vg.no', d:'Sjekk om en maskin svarer, og hvor raskt', t:'På Mac fortsetter den til du trykker Ctrl+C.'},
+    {c:'nett', x:'tracert vg.no', xm:'traceroute vg.no', d:'Se hvilke rutere pakkene går gjennom'},
+    {c:'nett', x:'nslookup vg.no', d:'Slå opp IP-adressen bak et domenenavn', t:'Dette er DNS i praksis.'},
+    {c:'nett', x:'ipconfig /flushdns', os:'win', d:'Tøm DNS-mellomlageret', t:'Nyttig når en nettside nylig har flyttet til en ny server.'},
+    {c:'nett', x:'arp -a', d:'Se hvilke MAC-adresser som hører til hvilke IP-adresser på nettet ditt'},
+    {c:'nett', x:'netstat -an', d:'Vis åpne tilkoblinger og porter'},
+    {c:'nett', x:'curl -I https://vg.no', d:'Se HTTP-headerne en nettside sender', t:'Her ser du blant annet statuskode, server og om siden kan vises i en iframe.'},
+    {c:'nett', x:'127.0.0.1', np:1, d:'Betyr alltid «denne maskinen»', t:'Kalles også localhost. Det er derfor utviklingsserveren din ligger på localhost.'},
+
+    // HTML
+    {c:'html', x:'<!DOCTYPE html>', d:'Første linje i alle HTML-filer', t:'Forteller nettleseren at siden er moderne HTML.'},
+    {c:'html', x:'<a href="side.html">Les mer</a>', d:'Lag en lenke', t:'Legg til target="_blank" for å åpne den i ny fane.'},
+    {c:'html', x:'<img src="katt.jpg" alt="Grå katt som sover">', d:'Sett inn et bilde med alt-tekst', t:'Alt-teksten leses opp for blinde og vises hvis bildet ikke laster.'},
+    {c:'html', x:'<meta name="viewport" content="width=device-width, initial-scale=1">', d:'Gjør siden mobilvennlig', t:'Uten denne linja ser siden bitteliten ut på mobil.'},
+    {c:'html', x:'<header> <nav> <main> <footer>', d:'Semantiske elementer som gir siden struktur', t:'Bedre enn bare <div> for skjermlesere og søkemotorer.'},
+    {c:'html', x:'<label for="navn">Navn</label>', d:'Koble en tekst til et skjemafelt', t:'Klikk på teksten, så havner markøren i feltet med id="navn".'},
+    {c:'html', x:'<details>\n  <summary>Svar</summary>\n  …\n</details>', d:'Lag en boks som kan åpnes og lukkes', t:'Helt uten JavaScript.'},
+    {c:'html', x:'<input type="color">', d:'Innebygd fargevelger', t:'Prøv også type="date" og type="range".'},
+    {c:'html', x:'<iframe src="…"></iframe>', d:'Vis en annen nettside inni siden din', t:'Det er slik friminutt-timeren havner i Classroomscreen.'},
+    {c:'html', x:'<video src="film.mp4" controls></video>', d:'Vis en video med avspillingsknapper'},
+    {c:'html', x:'<button type="button">', d:'En knapp som ikke sender skjemaet', t:'Uten type="button" sender knappen skjemaet den ligger i.'},
+
+    // CSS
+    {c:'css', x:'display: flex;\ngap: 1rem;', d:'Legg elementer på rad med jevn avstand'},
+    {c:'css', x:'display: grid;\ngrid-template-columns: repeat(3, 1fr);', d:'Lag tre like brede kolonner'},
+    {c:'css', x:'display: grid;\nplace-items: center;', d:'Sentrer noe både vannrett og loddrett'},
+    {c:'css', x:'* { box-sizing: border-box; }', d:'Regn med padding og kant i bredden', t:'Legg den øverst i CSS-en, så slipper du mange overraskelser.'},
+    {c:'css', x:'a:hover { color: tomato; }', d:'Endre stilen når musa er over et element'},
+    {c:'css', x:'@media (max-width: 600px) { … }', d:'Egne regler for smale skjermer', t:'Grunnlaget for responsivt design.'},
+    {c:'css', x:'border-radius: 50%;', d:'Gjør et kvadrat om til en sirkel'},
+    {c:'css', x:':root { --hoved: #2A5BD7; }\nh1 { color: var(--hoved); }', d:'Lag din egen CSS-variabel', t:'Endre fargen ett sted, så endres den overalt.'},
+    {c:'css', x:'transition: transform .3s;', d:'Myk overgang når noe endres'},
+    {c:'css', x:'object-fit: cover;', d:'Bildet fyller boksen uten å bli strukket'},
+    {c:'css', x:'position: sticky;\ntop: 0;', d:'Menyen blir liggende øverst når du scroller'},
+    {c:'css', x:'font-size: clamp(1rem, 4vw, 3rem);', d:'Tekst som skalerer med skjermen, med minste og største størrelse'},
+
+    // JavaScript
+    {c:'js', x:'console.log(verdi);', d:'Skriv ut noe i konsollen', t:'Se resultatet med F12 → Console. Den beste feilsøkingsvennen din.'},
+    {c:'js', x:'document.querySelector(".knapp")', d:'Hent et element fra siden', t:'Bruker de samme velgerne som CSS.'},
+    {c:'js', x:'knapp.addEventListener("click", () => {\n  …\n});', d:'Gjør noe når noen klikker'},
+    {c:'js', x:'const pi = 3.14;\nlet poeng = 0;', d:'const kan ikke endres, let kan det'},
+    {c:'js', x:'`Hei, ${navn}!`', d:'Sett variabler rett inn i tekst', t:'Bruk backticks ` i stedet for vanlige anførselstegn.'},
+    {c:'js', x:'tall.map(x => x * 2)', d:'Lag en ny liste der hvert element er endret'},
+    {c:'js', x:'elever.filter(e => e.alder >= 18)', d:'Plukk ut bare det som passer'},
+    {c:'js', x:'Math.floor(Math.random() * 6) + 1', d:'Trill en terning (1–6)'},
+    {c:'js', x:'if (svar === 42) { … }', d:'Sammenlign både verdi og type', t:'Bruk === i stedet for ==, så slipper du rare overraskelser.'},
+    {c:'js', x:'localStorage.setItem("navn", "Ola");', d:'Lagre data i nettleseren', t:'Hent dem igjen med localStorage.getItem("navn").'},
+    {c:'js', x:'const svar = await fetch(url);\nconst data = await svar.json();', d:'Hent data fra et API'},
+    {c:'js', x:'element.classList.toggle("aktiv");', d:'Slå en CSS-klasse av og på'},
+    {c:'js', x:'setInterval(oppdater, 1000);', d:'Kjør en funksjon hvert sekund'},
+
+    // React
+    {c:'react', x:'const [antall, setAntall] = useState(0);', d:'En verdi som oppdaterer siden når den endres'},
+    {c:'react', x:'useEffect(() => {\n  …\n}, []);', d:'Kjør kode én gang når komponenten vises', t:'Den tomme lista [] betyr «bare første gang».'},
+    {c:'react', x:'{elever.map(e =>\n  <li key={e.id}>{e.navn}</li>\n)}', d:'Lag en liste fra en array', t:'Husk key, ellers klager React i konsollen.'},
+    {c:'react', x:'function Kort({ tittel }) { … }', d:'Ta imot props i en komponent'},
+    {c:'react', x:'{erInnlogget && <Meny />}', d:'Vis noe bare når noe er sant'},
+    {c:'react', x:'<input value={tekst}\n  onChange={e => setTekst(e.target.value)} />', d:'Koble et tekstfelt til state'},
+    {c:'react', x:'<div className="kort">', d:'Skriv className i stedet for class i JSX'},
+
+    // Photoshop
+    {c:'ps', k:'V', m:'V', d:'Flytteverktøyet'},
+    {c:'ps', k:'B', m:'B', d:'Penselen'},
+    {c:'ps', k:'I', m:'I', d:'Pipetten: hent en farge fra bildet'},
+    {c:'ps', k:'Alt+Høyreklikk_og_dra', m:'Ctrl+Option+Dra', d:'Endre penselstørrelsen', t:'Dra sidelengs for størrelse.'},
+    {c:'ps', k:'Ctrl+J', m:'Cmd+J', d:'Dupliser laget', t:'Jobb på en kopi, så har du originalen i behold.'},
+    {c:'ps', k:'Ctrl+Shift+N', m:'Cmd+Shift+N', d:'Lag et nytt lag'},
+    {c:'ps', k:'Ctrl+T', m:'Cmd+T', d:'Skaler og roter (fri transformering)', t:'Trykk Enter når du er ferdig.'},
+    {c:'ps', k:'Ctrl+D', m:'Cmd+D', d:'Fjern markeringen'},
+    {c:'ps', k:'Ctrl+Shift+I', m:'Cmd+Shift+I', d:'Snu markeringen', t:'Marker motivet, snu markeringen, og rediger bakgrunnen.'},
+    {c:'ps', k:'X', m:'X', d:'Bytt forgrunns- og bakgrunnsfarge', t:'D setter dem tilbake til svart og hvit.'},
+    {c:'ps', k:'Space', m:'Space', d:'Hold inne og dra for å flytte rundt i bildet'},
+    {c:'ps', k:'Ctrl+0', m:'Cmd+0', d:'Tilpass bildet til vinduet'},
+
+    // Premiere Pro
+    {c:'pr', k:'V', m:'V', d:'Utvalgsverktøyet'},
+    {c:'pr', k:'C', m:'C', d:'Barberbladet: del et klipp i to'},
+    {c:'pr', k:'Ctrl+K', m:'Cmd+K', d:'Klipp der spillehodet står', t:'Klipper alle valgte spor på én gang.'},
+    {c:'pr', k:'Q/W', m:'Q/W', d:'Fjern alt før eller etter spillehodet i klippet', t:'Hullet på tidslinjen lukkes automatisk.'},
+    {c:'pr', k:'J/K/L', m:'J/K/L', d:'Spill bakover, pause og spill forover', t:'Trykk L flere ganger for å spole raskere.'},
+    {c:'pr', k:'I/O', m:'I/O', d:'Sett inn- og utpunkt'},
+    {c:'pr', k:'Space', m:'Space', d:'Spill av eller pause'},
+    {c:'pr', k:'Ctrl+M', m:'Cmd+M', d:'Eksporter filmen'}
+  ];
+
+  /* ========================================================= */
+
+  var $ = function(id){ return document.getElementById(id); };
+  var app = $('app'), card = $('card'), bar = $('bar'), sheet = $('sheet');
+  var catMap = {};
+  CATS.forEach(function(c){ catMap[c[0]] = { id:c[0], name:c[1], color:c[2] }; });
+
+  /* ---------- Innstillinger ---------- */
+  var STORE = 'dagens-tips-v1';
+  var settings = { title:'Dagens tips', os:'begge', bytt:0, cats: CATS.map(function(c){ return c[0]; }) };
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (saved && typeof saved === 'object') Object.assign(settings, saved);
+  } catch (e) {}
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.has('kat')) {
+      var want = q.get('kat').toLowerCase().split(',').map(function(s){ return s.trim(); }).filter(function(s){ return catMap[s]; });
+      if (want.length) settings.cats = want;
+    }
+    if (q.has('os') && /^(win|mac|begge)$/.test(q.get('os'))) settings.os = q.get('os');
+    if (q.has('bytt')) { var b = parseInt(q.get('bytt'), 10); settings.bytt = isNaN(b) ? 0 : Math.max(0, Math.min(240, b)); }
+    if (q.has('tittel')) settings.title = q.get('tittel').slice(0, 40);
+  } catch (e) {}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} }
+
+  /* ---------- Rekkefølge: fast stokket liste, så kategoriene veksler fra dag til dag ---------- */
+  function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var ORDER = TIPS.map(function(_, i){ return i; });
+  (function(){ var r = mulberry32(1106); for (var i = ORDER.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = ORDER[i]; ORDER[i] = ORDER[j]; ORDER[j] = t; } })();
+
+  function availableFor(tip, os){
+    if (tip.k) return os === 'win' ? true : os === 'mac' ? !!tip.m : true;
+    if (os === 'mac' && tip.os === 'win') return false;
+    return true;
+  }
+  function pool(){
+    return ORDER.filter(function(i){ var t = TIPS[i]; return settings.cats.indexOf(t.c) >= 0 && availableFor(t, settings.os); });
+  }
+
+  var offset = 0;   // hvor mange steg brukeren har bladd fra «dagens»
+  var shownKey = '';
+
+  function slotIndex(){
+    var now = new Date();
+    if (settings.bytt > 0) return Math.floor(now.getTime() / (settings.bytt * 60000));
+    return Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 864e5);
+  }
+
+  /* ---------- Tegning ---------- */
+  var KEYNAMES = { Up:'↑', Down:'↓', Left:'←', Right:'→', Space:'Mellomrom', Win:'⊞ Win', Cmd:'⌘ Cmd', Option:'⌥ Option', Plus:'+' };
+  var MOUSE = /klikk|dra/i;
+
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function keyRow(spec, label, small){
+    var row = el('div', 'keyrow' + (small ? ' small' : ''));
+    if (label) row.appendChild(el('span', 'lbl', label));
+    spec.split(' ').forEach(function(chord, ci){
+      if (ci > 0) row.appendChild(el('span', 'then', 'så'));
+      chord.split('+').forEach(function(tok, ki){
+        if (ki > 0) row.appendChild(el('span', 'plus', '+'));
+        var alts = (tok.length > 1 && tok.indexOf('/') > 0) ? tok.split('/') : [tok];
+        alts.forEach(function(a, ai){
+          if (ai > 0) row.appendChild(el('span', 'or', '/'));
+          var name = KEYNAMES[a] || a.replace(/_/g, ' ');
+          row.appendChild(el('span', 'key' + (MOUSE.test(a) ? ' mouse' : ''), name));
+        });
+      });
+    });
+    return row;
+  }
+  function codeBlock(text, withPrompt, small){
+    var pre = el('pre', 'code');
+    var longest = Math.max.apply(null, text.split('\n').map(function(l){ return l.length; }));
+    if (longest > 52) pre.classList.add('xlong'); else if (longest > 32) pre.classList.add('long');
+    if (small) pre.classList.add('small');
+    if (withPrompt) pre.appendChild(el('span', 'prompt', '$ '));
+    pre.appendChild(document.createTextNode(text));
+    return pre;
+  }
+
+  function render(force){
+    var list = pool();
+    var whenEl = $('when'), back = $('backBtn');
+    back.hidden = offset === 0;
+    whenEl.hidden = offset !== 0;
+    if (settings.bytt > 0) whenEl.textContent = 'Nytt tips hvert ' + settings.bytt + '. minutt';
+    else { try { whenEl.textContent = new Date().toLocaleDateString('nb-NO', { weekday:'long', day:'numeric', month:'long' }); } catch (e) { whenEl.textContent = ''; } }
+
+    if (!list.length) {
+      if (shownKey === 'empty' && !force) return;
+      shownKey = 'empty';
+      card.innerHTML = '';
+      card.appendChild(el('p', 'empty', 'Ingen tips passer innstillingene. Åpne innstillingene og velg flere kategorier.'));
+      return;
+    }
+    var n = list.length;
+    var idx = list[(((slotIndex() + offset) % n) + n) % n];
+    var key = idx + '|' + settings.os;
+    if (key === shownKey && !force) return;
+    shownKey = key;
+
+    var tip = TIPS[idx], cat = catMap[tip.c];
+    card.style.setProperty('--cat', cat.color);
+    card.innerHTML = '';
+    card.appendChild(el('span', 'chip', cat.name));
+
+    var rows = el('div', 'rows');
+    var os = settings.os;
+    if (tip.k) {
+      if (os === 'win') rows.appendChild(keyRow(tip.k));
+      else if (os === 'mac') rows.appendChild(keyRow(tip.m));
+      else if (!tip.m) rows.appendChild(keyRow(tip.k, 'Bare Windows'));
+      else if (tip.m === tip.k) rows.appendChild(keyRow(tip.k));
+      else { rows.appendChild(keyRow(tip.k, 'Windows')); rows.appendChild(keyRow(tip.m, 'Mac', true)); }
+    } else {
+      var prompt = !!PROMPT[tip.c] && !tip.np;
+      var box = el('div', 'coderow');
+      if (tip.os === 'win') { box.appendChild(el('span', 'lbl', 'Bare Windows')); box.appendChild(codeBlock(tip.x, prompt)); }
+      else if (!tip.xm) box.appendChild(codeBlock(tip.x, prompt));
+      else if (os === 'win') box.appendChild(codeBlock(tip.x, prompt));
+      else if (os === 'mac') box.appendChild(codeBlock(tip.xm, prompt));
+      else {
+        box.appendChild(el('span', 'lbl', 'Windows'));
+        box.appendChild(codeBlock(tip.x, prompt));
+        box.appendChild(el('span', 'lbl', 'Mac'));
+        box.appendChild(codeBlock(tip.xm, prompt, true));
+      }
+      rows.appendChild(box);
+    }
+    card.appendChild(rows);
+    card.appendChild(el('p', 'desc', tip.d));
+    if (tip.t) card.appendChild(el('p', 'tip', tip.t));
+
+    card.classList.remove('enter'); void card.offsetWidth; card.classList.add('enter');
+  }
+
+  /* ---------- Bla ---------- */
+  function step(d){ offset += d; render(); }
+  function random(){
+    var n = pool().length; if (n < 2) return;
+    var r; do { r = Math.floor(Math.random() * n); } while (r === (((offset % n) + n) % n));
+    offset = r; render();
+  }
+  function backToToday(){ offset = 0; render(); }
+
+  /* ---------- Innstillingsark ---------- */
+  var catsBox = $('cats');
+  CATS.forEach(function(c){
+    var count = TIPS.filter(function(t){ return t.c === c[0]; }).length;
+    var lab = el('label', 'check'); lab.htmlFor = 'cat-' + c[0];
+    var cb = el('input'); cb.type = 'checkbox'; cb.id = 'cat-' + c[0]; cb.value = c[0];
+    lab.appendChild(cb);
+    var name = el('span', null, c[1] + ' ');
+    name.appendChild(el('span', 'n', '(' + count + ')'));
+    lab.appendChild(name);
+    catsBox.appendChild(lab);
+    cb.addEventListener('change', readCats);
+  });
+  function readCats(){
+    settings.cats = Array.prototype.map.call(catsBox.querySelectorAll('input:checked'), function(i){ return i.value; });
+    $('catErr').hidden = settings.cats.length > 0;
+    save(); render(true);
+  }
+  function syncSheet(){
+    $('titleInput').value = settings.title;
+    document.querySelectorAll('[data-os]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.os === settings.os)); });
+    var sel = $('byttSelect');
+    if (!sel.querySelector('option[value="' + settings.bytt + '"]')) { var o = el('option', null, 'Hvert ' + settings.bytt + '. minutt'); o.value = settings.bytt; sel.appendChild(o); }
+    sel.value = String(settings.bytt);
+    catsBox.querySelectorAll('input').forEach(function(i){ i.checked = settings.cats.indexOf(i.value) >= 0; });
+  }
+  function syncTitle(){ var t = (settings.title || '').trim(); $('titleText').textContent = t; }
+  function openSheet(){ syncSheet(); sheet.hidden = false; setTimeout(function(){ try { $('titleInput').focus({ preventScroll:true }); } catch (e) {} }, 0); }
+  function closeSheet(){ if (settings.cats.length === 0) { $('catErr').hidden = false; return; } sheet.hidden = true; $('openSheet').focus({ preventScroll:true }); }
+
+  $('titleInput').addEventListener('input', function(e){ settings.title = e.target.value; syncTitle(); save(); });
+  document.querySelectorAll('[data-os]').forEach(function(b){
+    b.addEventListener('click', function(){ settings.os = b.dataset.os; syncSheet(); save(); render(true); });
+  });
+  $('byttSelect').addEventListener('change', function(e){ settings.bytt = parseInt(e.target.value, 10) || 0; offset = 0; save(); render(true); });
+  $('allCats').addEventListener('click', function(){ settings.cats = CATS.map(function(c){ return c[0]; }); syncSheet(); readCats(); });
+  $('noCats').addEventListener('click', function(){ settings.cats = []; syncSheet(); readCats(); });
+  sheet.addEventListener('submit', function(e){ e.preventDefault(); closeSheet(); });
+  $('closeSheet').addEventListener('click', closeSheet);
+
+  /* ---------- Knapper og tastatur ---------- */
+  function barClick(fn){ return function(e){ fn(); if (e.detail > 0 && e.currentTarget && e.currentTarget.blur) e.currentTarget.blur(); }; }
+  $('prevBtn').addEventListener('click', barClick(function(){ step(-1); }));
+  $('nextBtn').addEventListener('click', barClick(function(){ step(1); }));
+  $('randBtn').addEventListener('click', barClick(random));
+  $('openSheet').addEventListener('click', openSheet);
+  $('backBtn').addEventListener('click', backToToday);
+
+  window.addEventListener('keydown', function(e){
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!sheet.hidden) { if (e.key === 'Escape') { e.preventDefault(); closeSheet(); } return; }
+    var tag = e.target && e.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); random(); }
+  });
+
+  /* ---------- Skjul kontrollene når musa er i ro eller utenfor ---------- */
+  var hideT = null, overBar = false;
+  function pokeUI(){
+    app.classList.remove('hide-ui');
+    clearTimeout(hideT);
+    hideT = setTimeout(function(){ if (!overBar && sheet.hidden) app.classList.add('hide-ui'); }, 2500);
+  }
+  ['pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach(function(ev){ window.addEventListener(ev, pokeUI, { passive:true }); });
+  document.documentElement.addEventListener('mouseleave', function(){
+    overBar = false; clearTimeout(hideT);
+    hideT = setTimeout(function(){ if (sheet.hidden) app.classList.add('hide-ui'); }, 600);
+  });
+  bar.addEventListener('pointerenter', function(){ overBar = true; });
+  bar.addEventListener('pointerleave', function(){ overBar = false; pokeUI(); });
+
+  /* ---------- Start ---------- */
+  syncTitle();
+  render(true);
+  pokeUI();
+  setInterval(function(){ render(); }, 1000); // bytter tips ved midnatt eller når intervallet er ute
+})();
+</script>
+</body>
+</html>

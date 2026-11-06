@@ -24,3 +24,22 @@ Lim inn dette i Embed-widgetet og trykk «run code»:
 ## Tastatur
 
 Mellomrom: start/pause · ↑/↓: ett minutt mer/mindre · Esc: lukk innstillinger
+
+---
+
+# Dagens tips
+
+Viser én hurtigtast eller kommando om dagen: VS Code, tastatur og nettleser, terminal, Git, HTML, CSS, JavaScript, React, nettverk, Photoshop og Premiere Pro. Windows- og Mac-variant vises side om side.
+
+```html
+<iframe src="https://kristiandrom.github.io/friminutt/dagens-tips/" width="600" height="420" style="border:0"></iframe>
+```
+
+| Parameter | Eksempel | Betyr |
+|---|---|---|
+| `kat` | `?kat=vscode,git,terminal` | Bare disse kategoriene (`vscode`, `tastatur`, `terminal`, `git`, `html`, `css`, `js`, `react`, `nett`, `ps`, `pr`) |
+| `os` | `?os=win` | Vis bare Windows (`win`), bare Mac (`mac`) eller begge (`begge`) |
+| `bytt` | `?bytt=10` | Nytt tips hvert 10. minutt i stedet for hver dag |
+| `tittel` | `?tittel=Ukas%20triks` | Overskrift |
+
+Tastatur: ←/→ forrige/neste · R tilfeldig. Nye tips legges inn i `TIPS`-lista øverst i scriptet i `dagens-tips/index.html`.
